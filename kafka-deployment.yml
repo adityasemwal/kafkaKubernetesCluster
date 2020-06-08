@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-deployment
+spec:
+  template:
+    metadata:
+      name: kafka-pod
+      labels:
+        name: kafka-pod
+    spec:
+      containers:
+      - name: kafka-pod
+        image: adityasemwal/kafka:0.1.15
+        ports:
+        - containerPort: 9092
+          hostPort: 9092
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: "name"
+                operator: In
+                values:
+                - kafka-pod
+            topologyKey: "kubernetes.io/hostname"
+          #        command:
+          #        - sh
+          #        - -c
+          #        - "exec /kafka_2.13-2.5.0/bin/kafka-server-start.sh /kafka_2.13-2.5.0/config/server.properties --override listeners=PLAINTEXT://$(hostname -I | awk '{print $1}'):9093 --override advertised.listeners=PLAINTEXT://104.198.223.65:9093"
+  selector:
+    matchLabels:
+      name: kafka-pod
+  replicas: 3

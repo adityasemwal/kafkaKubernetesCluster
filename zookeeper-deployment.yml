@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper-deployment
+spec:
+  template:
+    metadata:
+      name: zookeeper-pod
+      labels:
+        name: zookeeper-pod
+    spec:
+      containers:
+      - name: zookeeper
+        image: adityasemwal/zookeeper:laetst
+        ports:
+        - containerPort: 2181
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "name"
+                    operator: In
+                    values: 
+                    - zookeeper-pod
+              topologyKey: "kubernetes.io/hostname"
+  selector:
+    matchLabels:
+      name: zookeeper-pod
+  replicas: 1
